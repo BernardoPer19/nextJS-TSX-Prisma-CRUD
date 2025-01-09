@@ -1,4 +1,5 @@
-"use client"
+"use client";
+import { useRouter } from "next/navigation"; // Cambiar de "next/router" a "next/navigation"
 import React, { useState } from "react";
 
 const NoteForm = () => {
@@ -6,6 +7,8 @@ const NoteForm = () => {
     title: "",
     content: "",
   });
+
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -17,7 +20,31 @@ const NoteForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-   
+    try {
+      const res = await fetch("/api/notes", {
+        method: "POST",
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("Note saved successfully:", data);
+
+      // Resetear el formulario y refrescar la página
+      setFormData({ title: "", content: "" });
+      router.refresh();
+    } catch (error) {
+      console.error("Error saving note:", error);
+    }
   };
 
   return (

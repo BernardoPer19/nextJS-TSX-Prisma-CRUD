@@ -1,19 +1,18 @@
+"use client"
 import ContactForm from '@/components/Form';
 import { NotesCard } from '@/components/NotesCard';
+import { NoteContext } from '@/context/NoteContext';
 import { NoteType } from '@/types/Notes';
 import { NextPage } from 'next';
+import { useContext, useEffect } from 'react';
 
-
-
-async function loadNotes() {
-  const res = await fetch("http://localhost:3000/api/notes");
-  const data = await res.json();
-  return data;
-}
 
 
 const Home: NextPage = async () => {
-  const notes: NoteType[] = await loadNotes(); // Obtiene los datos del servidor
+
+  const {notes,loadNotes} = useContext(NoteContext)
+
+  useEffect(()=>{loadNotes()},[])
   return (
     <>
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-10 space-y-10">
