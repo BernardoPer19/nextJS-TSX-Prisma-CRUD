@@ -1,5 +1,4 @@
-export interface NoteType {
-    id: number;
-    title: string;
-    content: string;
-  }
+import { Note } from "@prisma/client";
+
+export type CreateNoteType = Omit<Note,"id"| "createAt"| "updateAt">
+export type UpdateNoteType = Partial<CreateNoteType>

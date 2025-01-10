@@ -1,16 +1,27 @@
 "use client";
-import { useRouter } from "next/navigation"; // Cambiar de "next/router" a "next/navigation"
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNotesContext } from "@/context/NoteContext";
 
 const NoteForm = () => {
+  const { createNote, selectedNote, setSelectedNote, updateNote } =
+    useNotesContext(); // Corregido aquí
   const [formData, setFormData] = useState({
     title: "",
     content: "",
   });
+  const titleRef = useRef<HTMLInputElement>(null);
 
-  const router = useRouter();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    if (selectedNote) {
+      setFormData({
+        title: selectedNote.title,
+        content: selectedNote.content || "",
+      });
+    }
+  }, [selectedNote]);
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -20,39 +31,43 @@ const NoteForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await fetch("/api/notes", {
-        method: "POST",
-        body: JSON.stringify({
+
+    if (selectedNote) {
+      try {
+        await updateNote(selectedNote.id, {
           title: formData.title,
           content: formData.content,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error(`Error: ${res.status}`);
+        });
+        setSelectedNote(null); // Limpiar la selección
+        setFormData({ title: "", content: "" });
+      } catch (error) {
+        console.error("Error updating note:", error);
       }
-
-      const data = await res.json();
-      console.log("Note saved successfully:", data);
-
-      // Resetear el formulario y refrescar la página
-      setFormData({ title: "", content: "" });
-      router.refresh();
-    } catch (error) {
-      console.error("Error saving note:", error);
+    } else {
+      try {
+        await createNote({
+          title: formData.title,
+          content: formData.content,
+        });
+        setFormData({ title: "", content: "" });
+        titleRef.current?.focus();
+      } catch (error) {
+        console.error("Error saving note:", error);
+      }
     }
   };
 
   return (
     <div className="max-w-lg mx-auto mt-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 rounded-lg shadow-2xl">
-      <h2 className="text-3xl font-bold text-white text-center">Create a Note</h2>
+      <h2 className="text-3xl font-bold text-white text-center">
+        Create a Note
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-6 mt-6">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-white">
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-white"
+          >
             Title
           </label>
           <input
@@ -64,10 +79,14 @@ const NoteForm = () => {
             required
             className="mt-2 p-3 w-full border-none rounded-lg shadow-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-700"
             placeholder="Enter the note title"
+            ref={titleRef}
           />
         </div>
         <div>
-          <label htmlFor="content" className="block text-sm font-medium text-white">
+          <label
+            htmlFor="content"
+            className="block text-sm font-medium text-white"
+          >
             Content
           </label>
           <textarea
@@ -81,13 +100,26 @@ const NoteForm = () => {
             placeholder="Write your note content here..."
           ></textarea>
         </div>
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-4">
           <button
             type="submit"
             className="py-3 px-6 bg-white text-purple-700 font-semibold rounded-lg shadow-md hover:bg-purple-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
-            Save Note
+            {selectedNote ? "update" : "create"}
           </button>
+
+          {selectedNote && (
+            <button
+              onClick={() => {
+                setSelectedNote(null);
+                setFormData({ title: "", content: "" });
+              }}
+              type="button"
+              className="py-3 px-6 bg-white text-blue-700  font-semibold rounded-lg shadow-md hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Cancel
+            </button>
+          )}
         </div>
       </form>
     </div>

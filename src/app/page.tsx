@@ -1,16 +1,15 @@
 "use client"
 import ContactForm from '@/components/Form';
 import { NotesCard } from '@/components/NotesCard';
-import { NoteContext } from '@/context/NoteContext';
-import { NoteType } from '@/types/Notes';
+import {  useNotesContext } from '@/context/NoteContext';
 import { NextPage } from 'next';
-import { useContext, useEffect } from 'react';
+import {  useEffect } from 'react';
 
 
 
-const Home: NextPage = async () => {
+const Home: NextPage =  () => {
 
-  const {notes,loadNotes} = useContext(NoteContext)
+  const {notes,loadNotes} = useNotesContext()
 
   useEffect(()=>{loadNotes()},[])
   return (
