@@ -12,14 +12,14 @@ interface NoteContextValue {
   handleDelete: (id: number) => Promise<void>;
   updateNote: (id: number, note: UpdateNoteType) => Promise<void>;
   selectedNote: Note | null;
-  setSelectedNote: (note: Note | null) => void; // Corregí el nombre aquí
+  setSelectedNote: (note: Note | null) => void; 
 }
 
 interface NoteContextProps {
   children: ReactNode;
 }
 
-// Creando el contexto con un valor inicial vacío para evitar errores
+
 export const NoteContext = createContext<NoteContextValue>({
   notes: [],
   setNotes: () => {},
@@ -27,7 +27,7 @@ export const NoteContext = createContext<NoteContextValue>({
   createNote: async (note: CreateNoteType) => {},
   handleDelete: async (id: number) => {},
   selectedNote: null,
-  setSelectedNote: (note: Note | null) => {}, // Corregí el nombre aquí
+  setSelectedNote: (note: Note | null) => {}, 
   updateNote: async (id: number, note: UpdateNoteType) => {},
 });
 
@@ -63,7 +63,7 @@ function NoteContextProvider({ children }: NoteContextProps) {
       }
 
       const newNote = await res.json();
-      setNotes((prevNotes) => [...prevNotes, newNote]); // Agregar la nueva nota al estado
+      setNotes((prevNotes) => [...prevNotes, newNote]); 
     } catch (error) {
       console.error("Error creating note:", error);
     }
@@ -112,7 +112,7 @@ function NoteContextProvider({ children }: NoteContextProps) {
         loadNotes,
         createNote,
         handleDelete,
-        setSelectedNote, // Corregí el nombre aquí
+        setSelectedNote, 
         selectedNote,
         updateNote,
       }}
